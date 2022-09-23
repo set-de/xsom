@@ -42,6 +42,8 @@ package com.sun.xml.xsom.parser;
 
 import java.io.IOException;
 import java.net.URL;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -61,6 +63,10 @@ import com.sun.xml.xsom.impl.parser.Messages;
  *     Kohsuke Kawaguchi (kohsuke.kawaguchi@sun.com)
  */
 public class JAXPParser implements XMLParser {
+
+    // Cache for all files, that have already been parsed.
+    private final Set<String> parsedFiles = new HashSet<String>();
+
 
     // not in older JDK, so must be duplicated here, otherwise javax.xml.XMLConstants should be used
     private static final String ACCESS_EXTERNAL_SCHEMA = "http://javax.xml.XMLConstants/property/accessExternalSchema";
@@ -85,9 +91,13 @@ public class JAXPParser implements XMLParser {
 
     public void parse( InputSource source, ContentHandler handler,
         ErrorHandler errorHandler, EntityResolver entityResolver )
-        
         throws SAXException, IOException {
-        
+
+        if (this.parsedFiles.contains(source.getSystemId())) {
+            return;
+        }
+        this.parsedFiles.add(source.getSystemId());
+
         try {
             SAXParser saxParser = allowFileAccess(factory.newSAXParser(), false);
             XMLReader reader = new XMLReaderEx(saxParser.getXMLReader());
