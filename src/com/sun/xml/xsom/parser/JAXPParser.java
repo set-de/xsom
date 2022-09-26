@@ -93,10 +93,12 @@ public class JAXPParser implements XMLParser {
         ErrorHandler errorHandler, EntityResolver entityResolver )
         throws SAXException, IOException {
 
-        if (this.parsedFiles.contains(source.getSystemId())) {
-            return;
+        if (source.getSystemId() != null) {
+            if (this.parsedFiles.contains(source.getSystemId())) {
+                return;
+            }
+            this.parsedFiles.add(source.getSystemId());
         }
-        this.parsedFiles.add(source.getSystemId());
 
         try {
             SAXParser saxParser = allowFileAccess(factory.newSAXParser(), false);
